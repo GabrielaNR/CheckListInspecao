@@ -32,7 +32,6 @@ namespace CheckListInspecao
                     cmd.ExecuteNonQuery();
                 }
             }
-            return new SQLiteConnection($"Data Source = {dbPath}; Version = 3;");
         }
     }
 }
