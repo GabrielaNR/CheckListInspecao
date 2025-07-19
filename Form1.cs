@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SQLite;
 using System.IO;
 using System.Windows.Forms;
@@ -46,7 +47,7 @@ namespace CheckListInspecao
                 cmd.ExecuteNonQuery();
             }
 
- 
+
             MessageBox.Show($"Inspeção salva com sucesso", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             txtTecnico.Clear();
@@ -56,24 +57,30 @@ namespace CheckListInspecao
             {
                 clbItensVerificados.SetItemChecked(i, false);
             }
+            CarregarInspecoes();
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            cmbCcm.Items.AddRange(new string[]
-            {
-                "CCM 1",
-                "CCM 2",
-                "CCM 3",
-                "CCM 4",
-                "CCM 5",
-                "CCM 6",
-                "CCM 7",
-                "CCM 8",
-                "CCM 9",
-                "CCM 10"
-            });
-            cmbCcm.SelectedIndex = 0; // Seleciona o primeiro item por padrão
+            string ccm = cmbCcm.SelectedItem?.ToString();
         }
+
+        private void CarregarInspecoes()
+        {
+            using (var conn = Banco.ObterConexao())
+            {
+                conn.Open();
+                string sql = "SELECT * FROM Inspecao ORDER BY Data DESC";
+
+                SQLiteDataAdapter adapter = new SQLiteDataAdapter(sql, conn);
+                DataTable tabela = new DataTable();
+                adapter.Fill(tabela);
+
+                dgvInspecoes.DataSource = tabela;
+
+
+            }
+        }
+
     }
 }
