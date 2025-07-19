@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.IO;
 using System.Windows.Forms;
 
@@ -14,33 +15,42 @@ namespace CheckListInspecao
 
         private void btnSalvar_Click(object sender, EventArgs e)
         {
-            string tecnico = txtTecnico.Text;
-            DateTime data = dtpData.Value;
-            string ccm = cmbCcm.SelectedItem?.ToString();
-            string comentarios = txtComentarios.Text;
-
-            List<string> itensVerificados = new List<string>();
-            foreach (var item in clbItensVerificados.CheckedItems)
+            using (var conn = Banco.ObterConexao())
             {
-                itensVerificados.Add(item.ToString());
+                conn.Open();
+                if (cmbCcm.SelectedItem == null)
+                {
+                    MessageBox.Show("Por favor, selecione um CCM.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                string tecnico = txtTecnico.Text;
+                DateTime data = dtpData.Value;
+                string ccm = cmbCcm.SelectedItem?.ToString();
+                string comentarios = txtComentarios.Text;
+
+                List<string> itensVerificados = new List<string>();
+                foreach (var item in clbItensVerificados.CheckedItems)
+                {
+                    itensVerificados.Add(item.ToString());
+                }
+
+                string sql = @"INSERT INTO Inspecao (Tecnico, Data, Ccm, ItensVerificados, Comentarios) 
+                            VALUES (@Tecnico, @Data, @Ccm, @ItensVerificados, @Comentarios)";
+                var cmd = new SQLiteCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@Tecnico", tecnico);
+                cmd.Parameters.AddWithValue("@Data", data.ToString("yyyy-MM-dd"));
+                cmd.Parameters.AddWithValue("@Ccm", ccm);
+                cmd.Parameters.AddWithValue("@ItensVerificados", string.Join(", ", itensVerificados));
+                cmd.Parameters.AddWithValue("@Comentarios", comentarios);
+
+                cmd.ExecuteNonQuery();
             }
 
-            Inspecao novaInspecao = new Inspecao
-            {
-                Tecnico = tecnico,
-                Data = data,
-                Ccm = ccm,
-                ItensVerificados = itensVerificados,
-                Comentarios = comentarios
-            };
-
-            string nomeArquivo = $"Inspecao_{DateTime.Now.ToString("yyyyMMdd_HHmmss")}.txt";
-            File.WriteAllText(nomeArquivo, novaInspecao.ToString());
-
-            MessageBox.Show($"Inspeção salva com sucesso em {nomeArquivo}", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+ 
+            MessageBox.Show($"Inspeção salva com sucesso", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             txtTecnico.Clear();
-            
+            cmbCcm.SelectedIndex = -1;
             txtComentarios.Clear();
             for (int i = 0; i < clbItensVerificados.Items.Count; i++)
             {
