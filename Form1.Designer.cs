@@ -58,7 +58,7 @@
             // 
             txtTecnico.Location = new Point(227, 3);
             txtTecnico.Name = "txtTecnico";
-            txtTecnico.Size = new Size(384, 23);
+            txtTecnico.Size = new Size(534, 23);
             txtTecnico.TabIndex = 1;
             // 
             // lblData
@@ -103,7 +103,7 @@
             clbItensVerificados.Location = new Point(227, 185);
             clbItensVerificados.MultiColumn = true;
             clbItensVerificados.Name = "clbItensVerificados";
-            clbItensVerificados.Size = new Size(398, 112);
+            clbItensVerificados.Size = new Size(534, 112);
             clbItensVerificados.TabIndex = 7;
             // 
             // lblComentarios
@@ -120,7 +120,7 @@
             txtComentarios.Location = new Point(227, 325);
             txtComentarios.Multiline = true;
             txtComentarios.Name = "txtComentarios";
-            txtComentarios.Size = new Size(395, 78);
+            txtComentarios.Size = new Size(534, 78);
             txtComentarios.TabIndex = 9;
             // 
             // btnSalvar
@@ -189,6 +189,7 @@
             Controls.Add(btnSalvar);
             Name = "Form1";
             Text = "Inspeção de CCM";
+            Load += Form1_Load;
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvInspecoes).EndInit();

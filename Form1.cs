@@ -35,12 +35,12 @@ namespace CheckListInspecao
                     itensVerificados.Add(item.ToString());
                 }
 
-                string sql = @"INSERT INTO Inspecao (Tecnico, Data, Ccm, ItensVerificados, Comentarios) 
-                            VALUES (@Tecnico, @Data, @Ccm, @ItensVerificados, @Comentarios)";
+               string sql = @"INSERT INTO Inspecoes (Data, Tecnico, CcmId, ItensVerificados, Comentarios) 
+               VALUES (@Data, @Tecnico, @CcmId, @ItensVerificados, @Comentarios)";
                 var cmd = new SQLiteCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@Tecnico", tecnico);
                 cmd.Parameters.AddWithValue("@Data", data.ToString("yyyy-MM-dd"));
-                cmd.Parameters.AddWithValue("@Ccm", ccm);
+                cmd.Parameters.AddWithValue("@CcmId", ccm);
                 cmd.Parameters.AddWithValue("@ItensVerificados", string.Join(", ", itensVerificados));
                 cmd.Parameters.AddWithValue("@Comentarios", comentarios);
 
@@ -70,7 +70,7 @@ namespace CheckListInspecao
             using (var conn = Banco.ObterConexao())
             {
                 conn.Open();
-                string sql = "SELECT * FROM Inspecao ORDER BY Data DESC";
+                string sql = "SELECT * FROM Inspecoes ORDER BY Data DESC";
 
                 SQLiteDataAdapter adapter = new SQLiteDataAdapter(sql, conn);
                 DataTable tabela = new DataTable();
@@ -82,5 +82,57 @@ namespace CheckListInspecao
             }
         }
 
+        private void CarregarComboBoxCCM()
+        {
+            cmbCcm.Items.Clear();
+
+            using (var conn = Banco.ObterConexao())
+            {
+                conn.Open();
+                string sql = "SELECT Nome FROM CCMs ORDER BY Nome";
+                var cmd = new SQLiteCommand(sql, conn);
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    cmbCcm.Items.Add(reader["Nome"].ToString());
+                }
+
+                if(cmbCcm.Items.Count > 0)
+                {
+                    cmbCcm.SelectedIndex = 0; // Seleciona o primeiro CCM por padrão
+                }
+                else
+                {
+                    cmbCcm.SelectedIndex = -1; // Nenhum CCM disponível
+                }
+            }
+               
+        }
+
+        private void CarregarItensChecklist()
+        {
+            clbItensVerificados.Items.Clear();
+
+            using (var conn = Banco.ObterConexao())
+            {
+                conn.Open();
+                string sql = "SELECT Descricao FROM ItensChecklist ORDER BY Descricao";
+                var cmd = new SQLiteCommand(sql, conn);
+                var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    clbItensVerificados.Items.Add(reader["Descricao"].ToString());
+                }
+            }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Banco.CriarTabelas();
+            Banco.InserirDadosIniciais();
+            CarregarComboBoxCCM();
+            CarregarItensChecklist();
+        }
     }
 }
